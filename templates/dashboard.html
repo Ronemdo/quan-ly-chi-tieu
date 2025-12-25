@@ -1,5 +1,38 @@
 {% extends "base.html" %}
 {% block content %}
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h4 class="mb-0 text-secondary fw-bold" style="color: #4e73df !important;">
+            <i class="fas fa-calendar-alt me-2"></i>Tổng quan {{ selected_month.split('-')[1] }}/{{ selected_month.split('-')[0] }}
+        </h4>
+    </div>
+    <div class="col-md-6">
+        <form action="{{ url_for('dashboard') }}" method="GET" class="d-flex gap-2 justify-content-md-end bg-white p-2 rounded shadow-sm">
+            
+            <div class="input-group input-group-sm" style="width: 150px;">
+                <span class="input-group-text bg-light border-0"><i class="fas fa-calendar"></i></span>
+                <input type="month" name="month" class="form-control border-0 bg-light fw-bold" 
+                       value="{{ selected_month }}" onchange="this.form.submit()" style="cursor: pointer;">
+            </div>
+
+            <div class="vr"></div> <div class="input-group input-group-sm">
+                <input type="text" name="search" class="form-control border-0 bg-light" 
+                       placeholder="Tìm giao dịch..." value="{{ search_query }}">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            {% if search_query %}
+            <a href="{{ url_for('dashboard', month=selected_month) }}" class="btn btn-outline-secondary btn-sm" title="Xóa tìm kiếm">
+                <i class="fas fa-times"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card text-white bg-gradient-success mb-3 h-100">
@@ -32,7 +65,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title text-uppercase mb-1 opacity-75">Số Dư Hiện Tại</h6>
+                        <h6 class="card-title text-uppercase mb-1 opacity-75">Số Dư (Thực tế)</h6>
                         <h2 class="fw-bold mb-0">{{ "{:,.0f}".format(balance) }} đ</h2>
                     </div>
                     <i class="fas fa-wallet fa-2x opacity-50"></i>
@@ -46,7 +79,13 @@
     <div class="col-md-8">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-history me-2"></i>Lịch sử Giao dịch</h5>
+                <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-history me-2"></i>
+                    {% if search_query %}
+                        Kết quả tìm: "{{ search_query }}"
+                    {% else %}
+                        Lịch sử Giao dịch
+                    {% endif %}
+                </h5>
                 <a href="{{ url_for('add_transaction') }}" class="btn btn-primary btn-sm shadow-sm">
                     <i class="fas fa-plus me-1"></i> Thêm Mới
                 </a>
@@ -73,7 +112,13 @@
                                             {{ t.category.name }}
                                         </span>
                                     </td>
-                                    <td>{{ t.description }}</td>
+                                    <td>
+                                        {% if search_query %}
+                                            {{ t.description | replace(search_query, '<b>' + search_query + '</b>') | safe }}
+                                        {% else %}
+                                            {{ t.description }}
+                                        {% endif %}
+                                    </td>
                                     <td class="fw-bold {{ 'text-success' if t.category.type == 'income' else 'text-danger' }}">
                                         {{ '+' if t.category.type == 'income' else '-' }} {{ "{:,.0f}".format(t.amount) }} đ
                                     </td>
@@ -89,9 +134,13 @@
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i><br>
-                                        Chưa có giao dịch nào
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-search fa-3x mb-3 opacity-25"></i><br>
+                                        {% if search_query %}
+                                            Không tìm thấy kết quả nào cho "<b>{{ search_query }}</b>" trong tháng này.
+                                        {% else %}
+                                            Không có giao dịch nào trong tháng này.
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endif %}
@@ -112,21 +161,21 @@
                     <canvas id="expenseChart"></canvas>
                 </div>
                 <hr>
-                <small class="text-muted d-block text-center">Tỷ lệ chi tiêu theo danh mục tháng này.</small>
+                <small class="text-muted d-block text-center">Tỷ lệ chi tiêu theo danh mục.</small>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-   
     const labels = JSON.parse('{{ chart_labels | safe }}');
     const data = JSON.parse('{{ chart_data | safe }}');
 
-   
+    // Nếu đang tìm kiếm mà không có dữ liệu biểu đồ, vẫn vẽ chart rỗng để không bị lỗi layout
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    
     if (labels && labels.length > 0) {
-        const ctx = document.getElementById('expenseChart').getContext('2d');
-        const myChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -139,7 +188,7 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, 
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -149,18 +198,15 @@
                         }
                     }
                 },
-                layout: {
-                    padding: 10
-                },
-                cutout: '65%' 
+                layout: { padding: 10 },
+                cutout: '65%'
             }
         });
     } else {
-       
         document.querySelector('.chart-container').innerHTML = 
             "<div class='d-flex flex-column align-items-center justify-content-center h-100 text-muted'>" +
             "<i class='fas fa-chart-pie fa-3x mb-3 opacity-25'></i>" +
-            "<span>Chưa có dữ liệu chi tiêu</span></div>";
+            "<span>Không có dữ liệu</span></div>";
     }
 </script>
 {% endblock %}
