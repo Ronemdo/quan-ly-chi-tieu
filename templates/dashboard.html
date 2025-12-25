@@ -119,11 +119,11 @@
 </div>
 
 <script>
-    // Lấy dữ liệu từ Flask
+   
     const labels = JSON.parse('{{ chart_labels | safe }}');
     const data = JSON.parse('{{ chart_data | safe }}');
 
-    // Kiểm tra xem có dữ liệu không
+   
     if (labels && labels.length > 0) {
         const ctx = document.getElementById('expenseChart').getContext('2d');
         const myChart = new Chart(ctx, {
@@ -139,7 +139,7 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, // Để biểu đồ tự co giãn theo khung CSS
+                maintainAspectRatio: false, 
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -152,11 +152,11 @@
                 layout: {
                     padding: 10
                 },
-                cutout: '65%' // Làm rỗng giữa
+                cutout: '65%' 
             }
         });
     } else {
-        // Nếu không có dữ liệu, hiện thông báo
+       
         document.querySelector('.chart-container').innerHTML = 
             "<div class='d-flex flex-column align-items-center justify-content-center h-100 text-muted'>" +
             "<i class='fas fa-chart-pie fa-3x mb-3 opacity-25'></i>" +

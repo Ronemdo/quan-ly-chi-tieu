@@ -46,11 +46,10 @@
     </div>
 </div>
 <script>
-    // Lấy phần tử ô nhập ngày
+   
     var dateInput = document.getElementsByName('date')[0];
 
-    // Kiểm tra: Nếu ô ngày đang trống (nghĩa là đang Thêm mới), thì set ngày hôm nay
-    // Nếu ô ngày đã có dữ liệu (nghĩa là đang Sửa), thì giữ nguyên
+
     if (!dateInput.value) {
         dateInput.valueAsDate = new Date();
     }

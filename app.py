@@ -15,7 +15,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# --- MODELS ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -43,7 +42,6 @@ class Transaction(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- ROUTES ---
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -122,7 +120,6 @@ def dashboard():
                            chart_labels=json.dumps(chart_labels),
                            chart_data=json.dumps(chart_data))
 
-# --- CHỨC NĂNG THÊM MỚI ---
 @app.route('/add_transaction', methods=['GET', 'POST'])
 @login_required
 def add_transaction():
@@ -143,7 +140,6 @@ def add_transaction():
         
     return render_template('add_edit.html', categories=categories, title="Thêm Giao dịch", transaction=None)
 
-# --- CHỨC NĂNG SỬA (MỚI) ---
 @app.route('/edit_transaction/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_transaction(id):
