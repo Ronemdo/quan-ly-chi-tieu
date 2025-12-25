@@ -1,0 +1,15 @@
+# Bỏ qua thư mục ảo Python
+venv/
+env/
+.venv/
+
+# Bỏ qua các file biên dịch rác của Python
+__pycache__/
+*.pyc
+
+# Bỏ qua Database (Vì chứa dữ liệu test của bạn, không nên public)
+*.db
+instance/
+
+# Bỏ qua các file môi trường (nếu sau này dùng)
+.env

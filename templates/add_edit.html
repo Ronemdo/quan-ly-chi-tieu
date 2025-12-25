@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Số tiền (VNĐ)</label>
+                        <input type="number" name="amount" class="form-control" 
+                               value="{{ transaction.amount if transaction else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <select name="category" class="form-select">
+                            {% for c in categories %}
+                            <option value="{{ c.id }}" 
+                                {% if transaction and transaction.category_id == c.id %} selected {% endif %}>
+                                {{ c.name }} ({{ 'Thu' if c.type == 'income' else 'Chi' }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ngày giao dịch</label>
+                        <input type="date" name="date" class="form-control" 
+                               value="{{ transaction.date if transaction else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú</label>
+                        <input type="text" name="description" class="form-control"
+                               value="{{ transaction.description if transaction else '' }}">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">
+                            {{ 'Cập nhật' if transaction else 'Lưu Giao dịch' }}
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Lấy phần tử ô nhập ngày
+    var dateInput = document.getElementsByName('date')[0];
+
+    // Kiểm tra: Nếu ô ngày đang trống (nghĩa là đang Thêm mới), thì set ngày hôm nay
+    // Nếu ô ngày đã có dữ liệu (nghĩa là đang Sửa), thì giữ nguyên
+    if (!dateInput.value) {
+        dateInput.valueAsDate = new Date();
+    }
+</script>
+{% endblock %}
