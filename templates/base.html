@@ -16,8 +16,21 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f0f2f5;
             color: #333;
+            
+            /* CẤU HÌNH ẢNH NỀN */
+            /* Dùng url_for để lấy đường dẫn ảnh chuẩn trong Flask */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+                              url("{{ url_for('static', filename='images/bg.jpg') }}");
+            
+            /* Ảnh luôn phủ kín màn hình */
+            background-size: cover; 
+            
+            /* Ảnh đứng yên khi cuộn chuột (hiệu ứng Parallax) */
+            background-attachment: fixed;
+            
+            /* Căn giữa ảnh */
+            background-position: center;
         }
 
         /* Navbar */
